@@ -1,38 +1,48 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { RootState } from './store';
-type status = 'idle' | 'pending' | 'sucsess' | 'error';
+type status = 'idle' | 'pending' | 'loadImage' |  'sucsess' | 'error';
+
 interface CatData {
     id: string,
     url: string,
 }
 interface LoaddingCats {
-    status: Extract<status, 'pending'>
-    loadBar: {
-        currentValue: number;
-        maxValue: number;
-    }
+    status: Extract<status, 'pending'>;
+    loadBar : LoadBar
+
+}
+interface CreateStatus<T,C> {
+    status: T,
+    loadBar: C
+}
+interface LoadBar {
+    currentValue: number;
+    maxValue: number;
 }
 interface NotLoadingCats {
-    status: Exclude<status,  'pending'>
+    status: Exclude<status,  'pending'>,
+    loadBar: null;
 }
-export type LoadStatus = LoaddingCats | NotLoadingCats;
-interface FollowCatsState {
+export type LoadStatus = CreateStatus<Extract<status, 'loadImage'>,LoadBar> | CreateStatus<Exclude<status, 'loadImage'>,null>  ;
+interface CatsState {
     data: CatData[];
     loadStatus: LoadStatus;
 }
 
-const initiaFollowCats:FollowCatsState = {
+const initialCats:CatsState = {
     data: [],
     loadStatus: {
-        status: 'idle'
+        status: 'idle',
+        loadBar: null
     }
 
 }
-const followSlice = createSlice({
+const CatsSlice = createSlice({
     name:'cats',
-    initialState: initiaFollowCats,
+    initialState: initialCats,
     reducers: {
         updateCats(state,action:PayloadAction<CatData[]>) {
+
             state.data = [...state.data,...action.payload];
         },
         updateStatus(state,action: PayloadAction<LoadStatus>) {
@@ -45,8 +55,9 @@ const followSlice = createSlice({
 
 
 })
-export default followSlice.reducer;
+export default CatsSlice.reducer;
 
-export const {updateCats,updateStatus} = followSlice.actions;
-export const selectCats = (state: RootState) => state.followCats;
-export const selectIsFollowCats = (id:string) => (state:RootState) => state.followCats.data.map(el => el.id).includes(id);
+export const {updateCats,updateStatus} = CatsSlice.actions;
+export const selectCats = (state: RootState) => state.cats.data;
+export const selectStatus = (state:RootState) => state.cats.loadStatus.status;
+export const selectLoadBar = (state:RootState) => state.cats.loadStatus.loadBar;

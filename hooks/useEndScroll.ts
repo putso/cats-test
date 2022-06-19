@@ -11,7 +11,8 @@ const useEndScroll:useEndScrollProps =  (handler) => {
         const scrollHandler = (e:Event) => {
             
             const element = document.documentElement;
-            const checkEndScroll = element.scrollHeight - element.scrollTop === element.clientHeight;
+            console.log(element.scrollHeight - element.scrollTop,element.clientHeight);
+            const checkEndScroll = element.scrollHeight - element.scrollTop - element.clientHeight<100;
             if(checkEndScroll) handler();
         }
        document.addEventListener('scroll', scrollHandler); 
